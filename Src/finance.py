@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     now = datetime.now() # current date and time
     date_time = now.strftime("%m%d%Y%H%M%S")
-    results.to_csv(str(date_time)+'.csv')
+    results.to_csv(f'{date_time}.csv')
 
 
 

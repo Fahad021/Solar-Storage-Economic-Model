@@ -6,32 +6,28 @@ def MACRS_Schedule(years):
         return [0.2000, 0.3200, 0.1920, 0.1152, 0.1152, 0.0576]
     if years == 7:
         return [0.1429, 0.2449, 0.1749, 0.1249, 0.0893, 0.0892, 0.0893, 0.0446]
-    if years != 5 or years != 7:
-        raise ValueError('input argument can only be 5 or 7')
+    raise ValueError('input argument can only be 5 or 7')
 
 def calculate_PV_prod_annual_timeseries(y1_PV_prod_scenario, Analysis_period,
                                         PV_degradation_rate):
-    PV_production = []
-    for i in range(0, Analysis_period):
-        prod = y1_PV_prod_scenario * ((1-PV_degradation_rate/100)**i)
-        PV_production.append(prod)
-    return PV_production
+    return [
+        y1_PV_prod_scenario * ((1 - PV_degradation_rate / 100) ** i)
+        for i in range(0, Analysis_period)
+    ]
 
 
 def calculate_annual_cashflow(amount, Analysis_period, escalation_rate):
-    cashflow = []
-    for i in range(1, Analysis_period+1):
-        bill = -amount * ((1+escalation_rate/100)**i)
-        cashflow.append(bill)
-    return cashflow
+    return [
+        -amount * ((1 + escalation_rate / 100) ** i)
+        for i in range(1, Analysis_period + 1)
+    ]
 
 
 def calculate_PV_OM_cashflow_series(amount, escalation_rate, PV_kw, Analysis_period):
-    cashflow = []
-    for i in range(1, Analysis_period+1):
-        cost = -amount * ((1+escalation_rate/100)**i) * PV_kw
-        cashflow.append(cost)
-    return cashflow
+    return [
+        -amount * ((1 + escalation_rate / 100) ** i) * PV_kw
+        for i in range(1, Analysis_period + 1)
+    ]
 
 
 def calculate_bess_replace_cashflow_series(year, cost_per_kw, BESS_power_kw, Analysis_period):
@@ -46,14 +42,12 @@ def calculate_bess_replace_cashflow_series(year, cost_per_kw, BESS_power_kw, Ana
 
 def payback_period(cum_cashflow):
     array = numpy.array(cum_cashflow)
-    if array[len(array)-1] > 0:
-        final_full_year = list(array).index(max(array[array < 0]))
-        fractional_yr = array[final_full_year] / \
-            (array[final_full_year]-array[final_full_year + 1])
-        period = final_full_year + fractional_yr
-        return period
-    else:
+    if array[len(array) - 1] <= 0:
         return '>10'
+    final_full_year = list(array).index(max(array[array < 0]))
+    fractional_yr = array[final_full_year] / \
+        (array[final_full_year]-array[final_full_year + 1])
+    return final_full_year + fractional_yr
 
 
 def calculate_utility_avoided_energy_cost(bau_load, net_load_profile):
